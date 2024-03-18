@@ -1,0 +1,114 @@
+Parameters:
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.192.0.0/16
+
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 10.192.10.0/24
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  EC2SecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+        GroupDescription: "EC2 SG"
+        GroupName: !Sub ${AWS::StackName}-ec2-sg
+        VpcId: !Ref VPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: '0.0.0.0/0'
+          - IpProtocol: tcp
+            FromPort: 8080
+            ToPort: 8080
+            CidrIp: '0.0.0.0/0'
+
+  JenkinsInstanceKeyPair:
+    Type: 'AWS::EC2::KeyPair'
+    Properties:
+      KeyName: JenkinsInstanceKeyPair
+
+  JenkinsInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0bba69335379e17f8
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      SubnetId:
+        Ref: PublicSubnet1
+      UserData: 
+        "Fn::Base64": !Sub |
+          #!/bin/bash
+          # setup Jenkins on EC2
+          sudo yum update -y
+          sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+          sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io-2023.key
+          sudo yum upgrade
+          sudo amazon-linux-extras install java-openjdk17 -y
+          sudo yum install jenkins -y
+          sudo systemctl enable jenkins
+          sudo systemctl start jenkins
+      KeyName: !Ref JenkinsInstanceKeyPair
+
+
+Outputs:
+  VPC:
+    Description: A reference to the created VPC
+    Value: !Ref VPC
+
+  PublicSubnet1:
+    Description: A reference to the public subnet in the 1st Availability Zone
+    Value: !Ref PublicSubnet1
+
+  JenkinsURL:
+    Description: The URL for the Jenkins instance
+    Value: !Sub "http://${JenkinsInstance.PublicIp}:8080"
+    Export:
+      Name: JenkinsURL
