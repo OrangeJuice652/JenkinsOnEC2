@@ -1,0 +1,2 @@
+# JenkinsOnEC2
+JenkinsをインストールしたEC2を作成するためのCloudFormationテンプレート
