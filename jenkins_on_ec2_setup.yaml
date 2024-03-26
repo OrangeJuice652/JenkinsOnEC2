@@ -93,6 +93,7 @@ Resources:
           sudo yum upgrade
           sudo yum install java-17-amazon-corretto-devel -y
           sudo yum install jenkins -y
+          sudo yum install git -y
           sudo systemctl enable jenkins
           sudo systemctl start jenkins
       KeyName: !Ref JenkinsInstanceKeyPair
