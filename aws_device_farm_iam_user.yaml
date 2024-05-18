@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  DeviceFarmUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: DeviceFarmUser
+  DeviceFarmUserAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref DeviceFarmUser
+  DeviceFarmUserPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: DeviceFarmUserPolicy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'devicefarm:*'
+            Resource: '*'
+      Users:
+        - !Ref DeviceFarmUser
+  UserAccessKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub ${DeviceFarmUser}-credentials
+      SecretString: !Sub "{\"accessKeyId\":\"${DeviceFarmUserAccessKey}\",\"secretAccessKey\":\"${DeviceFarmUserAccessKey.SecretAccessKey}\"}"
+  EC2RoleForDeviceFarm:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: EC2RoleForDeviceFarm
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'ec2.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: DeviceFarmAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - 'devicefarm:*'
+                  - 'ec2:DescribeVpcs'
+                  - 'ec2:DescribeSubnets'
+                  - 'ec2:DescribeSecurityGroups'
+                  - 'ec2:CreateNetworkInterface'
+                Resource: '*'
