@@ -77,24 +77,40 @@ Resources:
   JenkinsInstance:
     Type: 'AWS::EC2::Instance'
     Properties:
-      InstanceType: t2.micro
+      InstanceType: t3.xlarge
       ImageId: ami-05ab370037ec59acb
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
       SubnetId:
         Ref: PublicSubnet1
-      UserData: 
-        "Fn::Base64": !Sub |
-          #!/bin/bash
-          # setup Jenkins on EC2
-          sudo yum update -y
-          sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
-          sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io-2023.key
-          sudo yum upgrade
-          sudo yum install java-17-amazon-corretto-devel -y
-          sudo yum install jenkins -y
-          sudo systemctl enable jenkins
-          sudo systemctl start jenkins
+      UserData: {
+        "Fn::Base64": {
+          "Fn::Join": ["", [
+            "#!/bin/bash\n",
+            "# setup Jenkins on EC2\n",
+            "sudo yum update -y\n",
+            "sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo\n",
+            "sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io-2023.key\n",
+            "sudo yum upgrade\n",
+            "sudo yum install java-17-amazon-corretto-devel jenkins git -y\n",
+            "wget https://raw.githubusercontent.com/OrangeJuice652/FlutterSetupOnLinux/main/flutter_setup_on_linux.sh -P ~jenkins/Downloads\n",
+            "wget https://raw.githubusercontent.com/OrangeJuice652/FlutterSetupOnLinux/main/jenkins_plugin.sh -P ~jenkins/Downloads\n",
+            "chown -R jenkins:jenkins ~jenkins/Downloads/\n",
+            "chmod u+x ~jenkins/Downloads/flutter_setup_on_linux.sh\n",
+            "chmod u+x ~jenkins/Downloads/jenkins_plugin.sh\n",
+            "sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh\n",
+            "sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh\n",
+            "sudo systemctl enable jenkins\n",
+            "sudo systemctl start jenkins\n"
+          ]]
+        }
+      }
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: gp2
+          VolumeSize: 12
+          DeleteOnTermination: true
       KeyName: !Ref JenkinsInstanceKeyPair
 
 
@@ -110,5 +126,7 @@ Outputs:
   JenkinsURL:
     Description: The URL for the Jenkins instance
     Value: !Sub "http://${JenkinsInstance.PublicIp}:8080"
-    Export:
-      Name: JenkinsURL
+  
+  JenkinsInstanceKeyPairID:
+    Description: The KeyPairID for the Jenkins instance
+    Value: !GetAtt JenkinsInstanceKeyPair.KeyPairId
