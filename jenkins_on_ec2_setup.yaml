@@ -78,7 +78,7 @@ Resources:
     Type: 'AWS::EC2::Instance'
     Properties:
       InstanceType: t3.xlarge
-      ImageId: ami-05ab370037ec59acb
+      ImageId: ami-0bba69335379e17f8
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
       SubnetId:
