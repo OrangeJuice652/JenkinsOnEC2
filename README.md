@@ -5,7 +5,7 @@ Jenkins（EC2上でホスト）を使用し、ビルド＆自動テストする�
 
 ## 構成図
 
-<!-- TODO: AWSの構成図作成 -->
+![](./static/jenkins_on_ec2_diagram.png)
 
 ## EC2に使用するAMI
 
@@ -80,4 +80,3 @@ aws cloudformation create-stack --stack-name AWSDeviceFarmUserStack --template-b
 - Flutterビルド＆AWS Device FarmのフロントテストCIパイプラインの作成の手順記載
 - Jenkinsの初期設定を自動化し、ブラウザ操作の手順をなくす
   - [参考](https://qiita.com/fuku2014/items/995cf34afd126a627c22f)
-- AMS構成図作成
