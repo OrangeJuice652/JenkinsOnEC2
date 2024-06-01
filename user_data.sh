@@ -12,5 +12,7 @@ sudo chmod u+x ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo chmod u+x ~jenkins/Downloads/jenkins_plugin.sh
 sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh
+rm -r ~jenkins/Downloads
+rm -r ~jenkins/tmp
 sudo systemctl enable jenkins
 sudo systemctl start jenkin
