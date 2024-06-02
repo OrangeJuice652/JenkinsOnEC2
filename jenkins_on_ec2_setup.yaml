@@ -83,28 +83,12 @@ Resources:
         - !Ref EC2SecurityGroup
       SubnetId:
         Ref: PublicSubnet1
-      UserData: {
-        "Fn::Base64": {
-          "Fn::Join": ["", [
-            "#!/bin/bash\n",
-            "# setup Jenkins on EC2\n",
-            "sudo yum update -y\n",
-            "sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo\n",
-            "sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io-2023.key\n",
-            "sudo yum upgrade\n",
-            "sudo yum install java-17-amazon-corretto-devel jenkins git -y\n",
-            "wget https://raw.githubusercontent.com/OrangeJuice652/FlutterSetupOnLinux/main/flutter_setup_on_linux.sh -P ~jenkins/Downloads\n",
-            "wget https://raw.githubusercontent.com/OrangeJuice652/FlutterSetupOnLinux/main/jenkins_plugin.sh -P ~jenkins/Downloads\n",
-            "chown -R jenkins:jenkins ~jenkins/Downloads/\n",
-            "chmod u+x ~jenkins/Downloads/flutter_setup_on_linux.sh\n",
-            "chmod u+x ~jenkins/Downloads/jenkins_plugin.sh\n",
-            "sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh\n",
-            "sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh\n",
-            "sudo systemctl enable jenkins\n",
-            "sudo systemctl start jenkins\n"
-          ]]
-        }
-      }
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/user_data.sh -P /tmp
+          chmod +x /tmp/user_data.sh
+          /tmp/user_data.sh
       BlockDeviceMappings:
       - DeviceName: /dev/xvda
         Ebs:
