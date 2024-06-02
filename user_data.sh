@@ -15,4 +15,4 @@ sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh
 rm -r ~jenkins/Downloads
 rm -r ~jenkins/tmp
 sudo systemctl enable jenkins
-sudo systemctl start jenkin
+sudo systemctl start jenkins
