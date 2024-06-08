@@ -20,6 +20,6 @@ sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/Flu
 # 環境変数のオーバーライド: https://www.jenkins.io/doc/book/system-administration/systemd-services/
 # jenkins.install.runSetupWizard: https://www.jenkins.io/doc/book/managing/system-properties/
 # systemctl editに標準入力をパイプ: https://bbs.archlinux.org/viewtopic.php?id=195782
-echo -e "[Service]\nEnvironment=\"JAVA_OPTS=-Djenkins.install.runSetupWizard=false\"" | sudo SYSTEMD_EDITOR=tee jenkins
+echo -e "[Service]\nEnvironment=\"JAVA_OPTS=-Djenkins.install.runSetupWizard=false\"" | sudo SYSTEMD_EDITOR=tee systemctl edit jenkins
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
