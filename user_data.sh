@@ -14,5 +14,12 @@ sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh
 rm -r ~jenkins/Downloads
 rm -r ~jenkins/tmp
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_1_install_plugin.groovy -P ~/jenkins/init.groovy.d/
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_2_set_up_job.groovy -P ~/jenkins/init.groovy.d/
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/FlutterBuildPipline.xml -P ~/jenkins/FlutterBuildPipline.xml
+# 環境変数のオーバーライド: https://www.jenkins.io/doc/book/system-administration/systemd-services/
+# jenkins.install.runSetupWizard: https://www.jenkins.io/doc/book/managing/system-properties/
+# systemctl editに標準入力をパイプ: https://bbs.archlinux.org/viewtopic.php?id=195782
+echo -e "[Service]\nEnvironment=\"JAVA_OPTS=-Djenkins.install.runSetupWizard=false\"" | sudo SYSTEMD_EDITOR=tee jenkins
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
