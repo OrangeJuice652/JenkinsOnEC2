@@ -13,8 +13,8 @@ sudo chmod u+x ~jenkins/Downloads/jenkins_plugin.sh
 sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh
 rm -fr ~jenkins/Downloads
-sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_1_install_plugin.groovy -P ~/jenkins/init.groovy.d/
-sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_2_set_up_job.groovy -P ~/jenkins/init.groovy.d/
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/groovy/init_1_install_plugin.groovy -P ~/jenkins/init.groovy.d/
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/groovy/init_2_set_up_job.groovy -P ~/jenkins/init.groovy.d/
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/FlutterBuildPipline.xml -P ~/jenkins/FlutterBuildPipline.xml
 # 環境変数のオーバーライド: https://www.jenkins.io/doc/book/system-administration/systemd-services/
 # jenkins.install.runSetupWizard: https://www.jenkins.io/doc/book/managing/system-properties/
