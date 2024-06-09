@@ -13,9 +13,10 @@ sudo chmod u+x ~jenkins/Downloads/jenkins_plugin.sh
 sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh
 rm -fr ~jenkins/Downloads
-sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/groovy/init_1_install_plugin.groovy -P ~/jenkins/init.groovy.d/
-sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/groovy/init_2_set_up_job.groovy -P ~/jenkins/init.groovy.d/
-sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/FlutterBuildPipline.xml -P ~/jenkins/FlutterBuildPipline.xml
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/groovy/init_1_set_up_logging.groovy -P ~jenkins/init.groovy.d/
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/groovy/init_2_install_plugin.groovy -P ~jenkins/init.groovy.d/
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/groovy/init_3_set_up_job.groovy -P ~jenkins/init.groovy.d/
+sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/FlutterBuildPipline.xml -P ~jenkins/FlutterBuildPipline.xml
 # 環境変数のオーバーライド: https://www.jenkins.io/doc/book/system-administration/systemd-services/
 # jenkins.install.runSetupWizard: https://www.jenkins.io/doc/book/managing/system-properties/
 # systemctl editに標準入力をパイプ_1: https://bbs.archlinux.org/viewtopic.php?id=195782
@@ -23,6 +24,5 @@ sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/Flu
 sudo mkdir -p /etc/systemd/system/jenkins.service.d/
 sudo echo -e "[Service]\nEnvironment=\"JAVA_OPTS=-Djenkins.install.runSetupWizard=false\"" > /etc/systemd/system/jenkins.service.d/override.conf
 rm -fr ~jenkins/tmp
-sudo systemctl edit jenkins
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
