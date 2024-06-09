@@ -12,7 +12,7 @@ sudo chmod u+x ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo chmod u+x ~jenkins/Downloads/jenkins_plugin.sh
 sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh
-rm -r ~jenkins/Downloads
+rm -fr ~jenkins/Downloads
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_1_install_plugin.groovy -P ~/jenkins/init.groovy.d/
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_2_set_up_job.groovy -P ~/jenkins/init.groovy.d/
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/FlutterBuildPipline.xml -P ~/jenkins/FlutterBuildPipline.xml
@@ -20,12 +20,8 @@ sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/Flu
 # jenkins.install.runSetupWizard: https://www.jenkins.io/doc/book/managing/system-properties/
 # systemctl editに標準入力をパイプ_1: https://bbs.archlinux.org/viewtopic.php?id=195782
 # systemctl editに標準入力をパイプ_1: https://unix.stackexchange.com/questions/459942/using-systemctl-edit-via-bash-script
-{
-    echo "[Service]"; 
-    echo "Environment="JAVA_OPTS=-Djenkins.install.runSetupWizard=false"";
-} > ~jenkins/tmp/jenkins-override.conf
-sudo env SYSTEMD_EDITOR="cp ~jenkins/tmp/jenkins-override.conf"
-rm -r ~jenkins/tmp
+sudo echo -e "[Service]\nEnvironment=\"JAVA_OPTS=-Djenkins.install.runSetupWizard=false\"" > /etc/systemd/system/jenkins.service.d/override.conf
+rm -fr ~jenkins/tmp
 sudo systemctl edit jenkins
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
