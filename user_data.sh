@@ -19,7 +19,13 @@ sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/ini
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/FlutterBuildPipline.xml -P ~/jenkins/FlutterBuildPipline.xml
 # 環境変数のオーバーライド: https://www.jenkins.io/doc/book/system-administration/systemd-services/
 # jenkins.install.runSetupWizard: https://www.jenkins.io/doc/book/managing/system-properties/
-# systemctl editに標準入力をパイプ: https://bbs.archlinux.org/viewtopic.php?id=195782
-echo -e "[Service]\nEnvironment=\"JAVA_OPTS=-Djenkins.install.runSetupWizard=false\"" | sudo SYSTEMD_EDITOR=tee systemctl edit jenkins
+# systemctl editに標準入力をパイプ_1: https://bbs.archlinux.org/viewtopic.php?id=195782
+# systemctl editに標準入力をパイプ_1: https://unix.stackexchange.com/questions/459942/using-systemctl-edit-via-bash-script
+{
+    echo "[Service]"; 
+    echo "Environment="JAVA_OPTS=-Djenkins.install.runSetupWizard=false"";
+} > ~jenkins/tmp/jenkins-override.conf
+sudo env SYSTEMD_EDITOR="cp ~jenkins/tmp/jenkins-override.conf"
+sudo systemctl edit jenkins
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
