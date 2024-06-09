@@ -13,7 +13,6 @@ sudo chmod u+x ~jenkins/Downloads/jenkins_plugin.sh
 sudo -u jenkins ~jenkins/Downloads/flutter_setup_on_linux.sh
 sudo -u jenkins ~jenkins/Downloads/jenkins_plugin.sh
 rm -r ~jenkins/Downloads
-rm -r ~jenkins/tmp
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_1_install_plugin.groovy -P ~/jenkins/init.groovy.d/
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/init_2_set_up_job.groovy -P ~/jenkins/init.groovy.d/
 sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/FlutterBuildPipline.xml -P ~/jenkins/FlutterBuildPipline.xml
@@ -26,6 +25,7 @@ sudo wget https://raw.githubusercontent.com/OrangeJuice652/JenkinsOnEc2/main/Flu
     echo "Environment="JAVA_OPTS=-Djenkins.install.runSetupWizard=false"";
 } > ~jenkins/tmp/jenkins-override.conf
 sudo env SYSTEMD_EDITOR="cp ~jenkins/tmp/jenkins-override.conf"
+rm -r ~jenkins/tmp
 sudo systemctl edit jenkins
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
