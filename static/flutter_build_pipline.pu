@@ -1,0 +1,16 @@
+@startuml
+!include <logos/github-icon>
+!include <aws/common>
+!include <aws/Compute/AmazonEC2/AmazonEC2>
+!include <aws/MobileServices/AWSDeviceFarm/AWSDeviceFarm>
+
+left to right direction
+
+rectangle "<$github-icon>\ngithubリポジトリ" as github_repository
+AMAZONEC2(ec2, "JenkinsServer")
+AWSDEVICEFARM(device_farm)
+
+ec2 --> github_repository: "1. Flutterソースコード取得"
+ec2 -> ec2: "2. Flutterソースコードビルド"
+ec2  -> device_farm: "3. DeviceFarmでテスト実行"
+@enduml
