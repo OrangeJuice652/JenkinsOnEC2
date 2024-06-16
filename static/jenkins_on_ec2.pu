@@ -4,17 +4,20 @@
 
 top to bottom direction
 
+' AWSアイコンライブラリ: https://github.com/awslabs/aws-icons-for-plantuml
 !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist
 !include AWSPuml/AWSCommon.puml
 !include AWSPuml/AWSSimplified.puml
 !include AWSPuml/Compute/EC2.puml
 !include AWSPuml/Compute/EC2Instance.puml
+!include AWSPuml/Compute/EC2AMI.puml
 !include AWSPuml/Groups/AWSCloud.puml
 !include AWSPuml/Groups/Generic.puml
 !include AWSPuml/Groups/VPC.puml
 !include AWSPuml/Groups/PublicSubnet.puml
 !include AWSPuml/Groups/SecurityGroup.puml
 !include AWSPuml/ManagementGovernance/SystemsManagerParameterStore.puml
+!include AWSPuml/ManagementGovernance/CloudFormation.puml
 !include AWSPuml/SecurityIdentityCompliance/IdentityAccessManagementAddon.puml
 !include AWSPuml/NetworkingContentDelivery/VPCInternetGateway.puml
 !include <cloudogu/common>
@@ -23,41 +26,47 @@ top to bottom direction
 skinparam linetype ortho
 
 AWSCloudGroup(cloud) {
-    VPCGroup(vpc) {
-        VPCInternetGateway(internet_gateway, "Internet gateway", "")
-        PublicSubnetGroup(public_subnet, "Public subnet") {
-            SecurityGroupGroup(security_group, "Security group ingress") {
-                EC2Instance(ec2, "EC2 Instance", "")
-                DOGU_JENKINS(jenkins, "Jenkins\n//<EC2 Public IP>:8080") #ffffff
+    GenericGroup(jenkins_on_ec2_group, "created by jenkins_on_ec2_setup.yaml") {
+        VPCGroup(vpc) {
+            VPCInternetGateway(internet_gateway, "Internet gateway", "")
+            PublicSubnetGroup(public_subnet, "Public subnet") {
+                SecurityGroupGroup(security_group, "Security group ingress") {
+                    EC2Instance(ec2, "EC2 Instance", "")
+                    DOGU_JENKINS(jenkins, "Jenkins\n//<EC2 Public IP>:8080") #ffffff
+                    EC2AMI(ec2_ami, "使用AMI:\namzn2-ami-kernel-5.10-hvm-2.0.20221210.1-x86_64-gp2", "")
 
-                jenkins -left- ec2
-            }
-            json "Security group ingress" as security_group_ingress_table {
-                "1": {
-                    "Protocol": "tcp",
-                    "From:To port": "22:22",
-                    "Cider ip": "0.0.0.0/0"
-                },
-                "2": {
-                    "Protocol": "tcp",
-                    "From:To port": "8080:8080",
-                    "Cider ip": "0.0.0.0/0"
+                    jenkins -left- ec2
+                    ec2_ami -up- ec2
                 }
+                json "Security group ingress" as security_group_ingress_table {
+                    "1": {
+                        "Protocol": "tcp",
+                        "From:To port": "22:22",
+                        "Cider ip": "0.0.0.0/0"
+                    },
+                    "2": {
+                        "Protocol": "tcp",
+                        "From:To port": "8080:8080",
+                        "Cider ip": "0.0.0.0/0"
+                    }
+                }
+                security_group -left- security_group_ingress_table
             }
 
-            security_group -left- security_group_ingress_table
+            internet_gateway -[hidden]down- ec2
         }
+        GenericGroup(store_for_privat_key, "Private key in Paramter store") {
+            SystemsManagerParameterStore(parameter_store, "Parameter store", "")
+            IdentityAccessManagementAddon(private_key, "EC2 Private key", "")
 
-        internet_gateway -[hidden]down- ec2
+            private_key -[hidden]left- parameter_store
+        }
+        
+        vpc -[hidden]right- store_for_privat_key
+        ec2 - store_for_privat_key
     }
-    GenericGroup(generic_group, "Private key in Paramter store") {
-        SystemsManagerParameterStore(parameter_store, "Parameter store", "")
-        IdentityAccessManagementAddon(private_key, "EC2 Private key", "")
+    CloudFormation(cfn, "", "")
 
-        private_key -[hidden]left- parameter_store
-    }
-    
-    vpc -[hidden]right- generic_group
-    ec2 - generic_group
+    cfn -up-> jenkins_on_ec2_group: Create
 }
 @enduml
