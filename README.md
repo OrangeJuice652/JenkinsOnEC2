@@ -12,9 +12,6 @@
 上図は、自動テスト環境のインフラ構成図である。
 上図の環境は、本リポジトリの[jenkins_on_ec2_setup.yaml](./jenkins_on_ec2_setup.yaml)を使い、CloudFormationで作成できる。
 
-### EC2に使用するAMI
-
-- amzn2-ami-kernel-5.10-hvm-2.0.20221210.1-x86_64-gp2
 
 ## 作成した自動テスト環境
 
@@ -26,6 +23,7 @@
   1. 指定したgithubリポジトリからソースコードをプルする。
 2. Jenkinsサーバー内で、手順1. でプルしたソースコードをビルドする。
 3. ビルドしたファイルをAWSDeviceFarmに送信してテスト実行。
+   1. DrviceFarm内で実行する自動テストについては、[YourFirstFlutterApp](https://github.com/OrangeJuice652/YourFirstFlutterApp)のREADMEに記載。
 
 
 ***
@@ -56,20 +54,18 @@ GUIでの初期設定は不要。
 
 ***
 
-## コマンドのメモ
+## リポジトリ内のファイル
 
-上記にない便利なコマンドのメモ
+| ファイル名                        | 役割                                                                                 |
+|:------------------------------|:-----------------------------------------------------------------------------------|
+| jenkins_on_ec2_setup.yaml     | 構成図に記載したAWS環境を作成するCloudFormationテンプレート                                      |
+| user_data.sh                  | EC2起動時に実行されるUserDataスクリプト                                                       |
+| aws_device_farm_iam_user.yaml | IAMロール作成用のCloudFormation。作成したIAMロールは、Jenkinsから、DeviceFarmのテスト実行を行うため使用される。 |
+| groovy                        | Jenkins起動時に、初期設定※を自動実行するスクリプト。 <br>※プラグインのインストール、ジョブのインポート等                  |
+| FlutterBuildPipline.xml       | Jenkins起動時に自動importするJenkinsジョブの定義ファイル。groovy配下のスクリプト内で使用する。             |
+| static                        | READMEで使用する画像やplantumlファイル等                                                     |
 
-### スタック削除
-```
-aws cloudformation delete-stack --stack-name JenkinsStack
-```
-
-### Device Farm用のIAMスタックの作成
-
-```
-aws cloudformation create-stack --stack-name AWSDeviceFarmUserStack --template-body file://<aws_device_farm_iam_user.yamlのファイルパス> --capabilities CAPABILITY_NAMED_IAM
-```
+***
 
 ## TODO
 
@@ -92,6 +88,20 @@ aws cloudformation create-stack --stack-name AWSDeviceFarmUserStack --template-b
 
 ## メモ
 
+### スタック削除
+```
+aws cloudformation delete-stack --stack-name JenkinsStack
+```
+
+### Device Farm用のIAMスタックの作成
+
+Jenkinsが、DeviceFarmに、ビルドファイルを送信＆テスト実行させるためにIAMRoleが必要。
+`aws_device_farm_iam_user.yaml`を、CloudFormationで実行し作成する。
+
+```
+aws cloudformation create-stack --stack-name AWSDeviceFarmUserStack --template-body file://<aws_device_farm_iam_user.yamlのファイルパス> --capabilities CAPABILITY_NAMED_IAM
+```
+
 ### Jenkinsジョブをエクスポート
 
 既存のJenkinsから、ジョブをエクスポートする。
@@ -112,14 +122,14 @@ CloudFormationで作成したEC2に、SSH接続するためのメモ
 
 1. 作成したKeyPairから、EC2にSSH接続
 
-- [CloudFormationで作成したキーペアを取得＆~/.ssh配下に保存するスクリプト](https://github.com/OrangeJuice652/SaveCloudFormationKeyPair/tree/main)
+- [CloudFormationで作成したキーペアを取得＆~/.ssh配下に保存するスクリプト](https://github.com/OrangeJuice652/SaveCloudFormationKeyPair/tree/main)を使用。
 
  - コマンド
  ```
  ./SaveCloudFormationKeyPair/save_cloudformation_keypair.sh JenkinsStack JenkinsInstanceKeyPairID JenkinsInstanceKeyPair
  ```
 
-- スクリプトを使用しない場合は、~/.ssh配下で、パラメータストア（/ec2/keypair/作成したキーペアID）記載のキー値を保存
+- スクリプトを使用しない場合は、~/.ssh配下で、パラメータストア（/ec2/keypair/作成したキーペアID）記載のキー値でキーファイル作成。
 
 2. EC2にssh接続
 

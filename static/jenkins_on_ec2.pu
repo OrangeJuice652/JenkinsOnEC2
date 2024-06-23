@@ -32,7 +32,7 @@ AWSCloudGroup(cloud) {
             PublicSubnetGroup(public_subnet, "Public subnet") {
                 SecurityGroupGroup(security_group, "Security group ingress") {
                     EC2Instance(ec2, "EC2 Instance", "")
-                    DOGU_JENKINS(jenkins, "Jenkins\n//<EC2 Public IP>:8080") #ffffff
+                    DOGU_JENKINS(jenkins, "Jenkins\n<EC2 Public IP>:8080") #ffffff
                     EC2AMI(ec2_ami, "使用AMI:\namzn2-ami-kernel-5.10-hvm-2.0.20221210.1-x86_64-gp2", "")
 
                     jenkins -left- ec2
@@ -65,8 +65,8 @@ AWSCloudGroup(cloud) {
         vpc -[hidden]right- store_for_privat_key
         ec2 - store_for_privat_key
     }
-    CloudFormation(cfn, "", "")
+    CloudFormation(cfn, "CloudFormation", "")
 
-    cfn -up-> jenkins_on_ec2_group: Create
+    cfn --> jenkins_on_ec2_group: Create
 }
 @enduml
