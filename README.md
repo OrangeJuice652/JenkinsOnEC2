@@ -2,7 +2,7 @@
 
 ## 概要
 
-[作成したFlutterアプリケーション](https://github.com/OrangeJuice652/YourFirstFlutterApp)をビルド -> AwsDeviceFarmを使用したUI確認の自動テスト
+[YourFirstFlutterApp](https://github.com/OrangeJuice652/YourFirstFlutterApp)をビルド -> AwsDeviceFarmを使用したUI確認の自動テスト
 を行う環境をセットアップするリポジトリ。
 
 ## 構成図
@@ -13,18 +13,22 @@
 上図の環境は、本リポジトリの[jenkins_on_ec2_setup.yaml](./jenkins_on_ec2_setup.yaml)を使い、CloudFormationで作成できる。
 
 
-## 作成した自動テスト環境
+## 作成したJenkinsの自動テストジョブ
 
 ![](./static/flutter_build_pipline.png)
 
-上図は、作成したJenkinsにあるFlutterBuildPiplineの自動テストの流れである。
+上図は、作成したJenkinsで作成した自動テストジョブの流れを示したものである。
 
-1. Flutterソースコードを取得
-  1. 指定したgithubリポジトリからソースコードをプルする。
-2. Jenkinsサーバー内で、手順1. でプルしたソースコードをビルドする。
-3. ビルドしたファイルをAWSDeviceFarmに送信してテスト実行。
+1. GITPULLステージ：Flutterソースコードを取得
+  1. [YourFirstFlutterAppのリポジトリ](https://github.com/OrangeJuice652/YourFirstFlutterApp)からソースファイル等をプルする。
+2. BUILDステージ：Jenkinsサーバー内で、手順1. でプルしたソースコードをビルドする。
+3. TESTPARATIONステージ：圧縮テストパッケージファイルを作成
+   1. [YourFirstFlutterAppのリポジトリに用意したair_test_packageフォルダ](https://github.com/OrangeJuice652/YourFirstFlutterApp/tree/main/air_test_package)を、圧縮しテストパッケージファイルを作成
+      1. 参考：[圧縮テストパッケージファイルを作成する](https://docs.aws.amazon.com/ja_jp/devicefarm/latest/developerguide/test-types-appium.html)
+4. TESTステージ：ビルドしたアプリケーション・圧縮テストパッケージファイルをAWSDeviceFarmに送信して、テスト実行。
    1. DrviceFarm内で実行する自動テストについては、[YourFirstFlutterApp](https://github.com/OrangeJuice652/YourFirstFlutterApp)のREADMEに記載。
 
+本ジョブは、`FlutterBuildPipline.xml`をインポートすることで作成できる。
 
 ***
 
