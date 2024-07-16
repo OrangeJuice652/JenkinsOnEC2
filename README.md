@@ -108,16 +108,17 @@ aws cloudformation create-stack --stack-name AWSDeviceFarmUserStack --template-b
 
 ### Jenkinsジョブをエクスポート
 
-既存のJenkinsから、ジョブをエクスポートする。
+既存のJenkinsから、任意のジョブの定義ファイルをエクスポートする。
+
 [参考](https://www.jenkins.io/doc/book/managing/cli/)
 
 1. jenkins-cli.jarを、ローカル環境にダウンロード
   - ダウンロード先：`<JenkinsのURL>/jnlpJars/jenkins-cli.jar`
 
-2. ジョブ名を取得
+2. エクスポートするジョブ名を取得
   -  `java -jar ./jenkins-cli.jar -s <JenkinsのURL> -auth <ユーザー名>:<パスワード(環境変数で参照すること推奨)> list-jobs`
 
-3. ジョブをエクスポート
+3. ジョブの定義ファイルをエクスポート
   -  `java -jar ./jenkins-cli.jar -s <JenkinsのURL> -auth <ユーザー名>:<パスワード(環境変数で参照すること推奨)> get-job > hoge.xml`
 
 ### SSH接続手順
